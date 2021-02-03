@@ -14,7 +14,6 @@ service_classes['dev'] = json.loads(devjson)['services']
 
 prodjson = requests.get("https://www.apple.com/support/systemstatus/data/system_status_en_US.js").text
 service_classes['prod'] = json.loads(prodjson)['services']
-print (service_classes['prod'])
 
 @app.route('/services')
 def get_services():
