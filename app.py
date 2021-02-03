@@ -5,7 +5,7 @@ from chalice import Chalice
 from urllib.parse import quote
 
 
-app = Chalice(app_name='fs_status')
+app = Chalice(app_name='apple-system-status')
 
 service_classes = {}
 
