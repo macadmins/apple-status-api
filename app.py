@@ -1,10 +1,11 @@
-from chalice import Chalice
-from urllib import unquote
-
 import json
+import urllib
 import requests
+from chalice import Chalice
+from urllib.parse import quote
 
-app = Chalice(app_name='apple-system-status')
+
+app = Chalice(app_name='fs_status')
 
 service_classes = {}
 
@@ -13,17 +14,18 @@ service_classes['dev'] = json.loads(devjson)['services']
 
 prodjson = requests.get("https://www.apple.com/support/systemstatus/data/system_status_en_US.js").text
 service_classes['prod'] = json.loads(prodjson)['services']
+print (service_classes['prod'])
 
 @app.route('/services')
 def get_services():
-    
+
     result = []
 
-    for _, servicekeys in service_classes.iteritems():
+    for _, servicekeys in service_classes.items():
         for service in servicekeys:
             serviceName = service.get('serviceName')
             result.append(serviceName)
-    
+
     return json.dumps(result)
 
 @app.route('/service/{name}')
@@ -31,9 +33,9 @@ def get_service(name):
 
     result = {}
 
-    for _, servicekeys in service_classes.iteritems():
+    for _, servicekeys in service_classes.items():
         for service in servicekeys:
-            if unquote(name) in service['serviceName']:
+            if urllib.parse.unquote(name) in service['serviceName']:
                 result = service
 
     return json.dumps(result)
@@ -45,9 +47,9 @@ def get_service_status(name, status):
     down_status_list = ['']
     up_status_list = ['resolved', 'completed']
 
-    for _, servicekeys in service_classes.iteritems():
+    for _, servicekeys in service_classes.items():
         for service in servicekeys:
-            if unquote(name) in service['serviceName']:
+            if urllib.parse.unquote(name) in service['serviceName']:
                 eventStatus = service['events'][0]['eventStatus']
                 if 'up' in status:
                     if len(service['events']) == 0:
@@ -67,7 +69,7 @@ def get_service_status(name, status):
                         result = False
                 else:
                     result = 'Invalid status request'
-    
+
     return json.dumps(result)
 
 @app.route('/devstatus')
@@ -82,7 +84,7 @@ def get_dev():
 
         else:
             result[serviceName] = service.get('events')
-    
+
     return json.dumps(result)
 
 @app.route('/prodstatus')
@@ -97,7 +99,5 @@ def get_prod():
 
         else:
             result[serviceName] = service.get('events')
-    
+
     return json.dumps(result)
-
-
